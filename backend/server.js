@@ -9,7 +9,7 @@ require('dotenv').config();
 console.log("모듈 로드 완료!");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 app.use(cors());
 app.use(express.json());
