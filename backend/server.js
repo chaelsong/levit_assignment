@@ -3,6 +3,7 @@ console.log("=== 서버 파일 읽기 시작 ===");
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const path = require('path'); // [추가] 경로 설정을 위한 path 모듈
 require('dotenv').config();
 
 console.log("모듈 로드 완료!");
@@ -13,8 +14,11 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Google Gemini API Key 설정 (여기에 본인 API 키를 직접 넣어서 테스트해보세요!)
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "your_gemini_api_key_here";
+// [추가] 프론트엔드 빌드 파일 서빙 (Render 배포 시 프론트/백엔드 통합 구동용)
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+// Google Gemini API Key 설정
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AQ.Ab8RN6IjgWwhpoNmtjlaDHehMLLLDXp0UlXyiz5SGUqhMYIGmw";
 
 app.post('/api/summarize', async (req, res) => {
     try {
@@ -65,6 +69,11 @@ ${reviews.map(r => `- ${r}`).join('\n')}
         console.error("API 호출 에러:", error.response?.data || error.message);
         res.status(500).json({ success: false, error: "서버 내부 오류가 발생했습니다." });
     }
+});
+
+// [추가] 그 외 모든 요청은 프론트엔드 라우터로 연결
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
 
 app.listen(PORT, () => {
